@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "fileio.h"
+
 int main(int argc, char** argv)
 {
-    char* src = ",+.";
+    if(argc < 2) exit(1);
+
+    char* src =  get_file_contents(argv[1]);
     char* current_char_ptr = src;
 
     signed char cells[100] = {0};
@@ -41,7 +45,7 @@ int main(int argc, char** argv)
                 break;
 	        case '.':
                 putchar((char)(*cell_ptr));
-		        break;
+		          break;
             case ',':
                 *cell_ptr = (signed char)getchar();
                 break;
