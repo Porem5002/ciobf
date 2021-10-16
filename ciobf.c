@@ -2,6 +2,36 @@
 #include <stdio.h>
 #include <string.h>
 
+static void simplify_src(char* destination, char* src)
+{
+   int i;
+   int j;
+
+   j = 0;   
+
+   for(i = 0; i < strlen(src); i++)
+   {
+      switch(src[i])
+      {
+         case '+':
+         case '-':
+         case '>':
+         case '<':
+         case '.':
+         case ',':
+         case '[':
+         case ']':
+            destination[j] = src[i];
+            j++;
+            break;
+         default:
+            break;
+      }
+   }
+
+   destination[j] = '\0';
+}
+
 void interpret(char* src)
 {
     char* current_char_ptr = src;
@@ -35,9 +65,9 @@ void interpret(char* src)
                 while(*current_char_ptr != '[') current_char_ptr--;
                 current_char_ptr++;
                 break;
-	        case '.':
+            case '.':
                 putchar((char)(*cell_ptr));
-		          break;
+                break;
             case ',':
                 *cell_ptr = (signed char)getchar();
                 break;
@@ -48,33 +78,12 @@ void interpret(char* src)
     }
 }
 
-void compile(char* src)
+void compile_to_linux_x86_64(char* src)
 {
    char simplified_src [strlen(src)+1];
-   int j = 0;   
 
-   for(int i = 0; i < strlen(src); i++)
-   {
-      switch(src[i])
-      {
-         case '+':
-         case '-':
-         case '>':
-         case '<':
-         case '.':
-         case ',':
-         case '[':
-         case ']':
-            simplified_src[j] = src[i];
-            j++;
-            break;
-         default:
-            break;
-      }
-   }
+   simplify_src(simplified_src, src);
 
-   simplified_src[j] = '\0';
-   
    char* current_char_ptr = simplified_src;
    
    unsigned int current_max_loop_id = 0;
@@ -85,14 +94,24 @@ void compile(char* src)
    char last_syscall = 2;
    
    freopen("out.s", "w", stdout);
+   
+/* ------------------------------------- */
+/*        Head of assembly file          */
+/* ------------------------------------- */
 
    printf("section .bss\n");
    printf("array resq 100\n");
+   printf("buffer resb 10\n");
    printf("section .text\n");
    printf("global _start\n");
    printf("_start:\n");
+   printf("\tmov rbx, buffer\n");
    printf("\tmov rsi, array\n");
    printf("\tmov rdx, 1\n");
+
+/* ------------------------------------- */
+/*        Body of assembly file          */
+/* ------------------------------------- */
 
    while(*current_char_ptr != '\0')
    { 
@@ -149,33 +168,84 @@ void compile(char* src)
             printf("\tjmp loop%u\n", *loop_id_stack_top);
             printf("endloop%u:\n", *loop_id_stack_top);
          case '.': 
-            printf("\tmov rax, 1\n");
+            printf("\tcall print\n");
+            /*printf("\tmov rax, 1\n");
             if(last_syscall != 1)
             {
                printf("\tmov rdi, 1\n");
                last_syscall = 1;  
             }
-            // printf("\tmov rdx, 1\n");
-            printf("\tsyscall\n");
+            printf("\tsyscall\n");*/
             break;
          case ',':
-            printf("\tmov rax, 0\n");
+            printf("\tcall read_with_flush\n");
+            /*printf("\tmov rax, 0\n");
             if(last_syscall != 0)
             {
                printf("\tmov rdi, 0\n");
                last_syscall = 0;
             }
-            // printf("\tmov rdx, 1\n");
-            printf("\tsyscall\n");
+            printf("\tsyscall\n");*/
          default: 
             break;
       }
       current_char_ptr++;
    }
    
+/* ------------------------------------- */
+/*        Footer of assembly file        */
+/* ------------------------------------- */
+
+   /* Exit Syscall */
    printf("\tmov rax, 60\n");
    printf("\tmov rdi, 0\n");
    printf("\tsyscall\n");
+
+   /* Print Function */ 
+   printf("print:\n");
+   printf("\tmov al, byte [rsi]\n");
+   printf("\tmov byte [rbx], al\n");
+   printf("\tinc rbx\n");
+   printf("\tinc rcx\n");
+   printf("\tcmp rbx, buffer + 10\n");
+   printf("\tjne endprint\n");
+   printf("\tpush rsi\n");
+   printf("\tmov rax, 1\n");
+   printf("\tmov rdi, 1\n");
+   printf("\tmov rsi, buffer\n");
+   printf("\tmov rdx, 10\n");
+   printf("\tsyscall\n");
+   printf("\tpop rsi\n");   
+   printf("\tmov rbx, buffer\n");
+   printf("\tmov rcx, 0\n"); 
+   printf("endprint:\n");
+   printf("\tret\n");
+
+   /* Read Function */
+   printf("read_with_flush:\n");
+   printf("\tcmp rcx, 0\n");
+   printf("\tje read\n");
+   printf("\tpush rsi\n");
+   printf("\tmov rax, 1\n");
+   printf("\tmov rdi, 1\n");
+   printf("\tmov rsi, buffer\n");
+   printf("\tmov rdx, rcx\n");
+   printf("\tsyscall\n");
+   printf("\tmov rbx, buffer\n");
+   printf("\tmov rcx, 0\n");
+   printf("\tpop rsi\n");
+   printf("read:\n");
+   printf("\tmov rax, 0\n");
+   printf("\tmov rdi, 0\n");
+   printf("\tmov rdx, 1\n");
+   printf("\tsyscall\n");
+   printf("\tmov al, byte [rsi]\n");
+   printf("\tcmp al, 10\n");
+   printf("\tje read\n");
+   printf("\tcmp al, 13\n");
+   printf("\tje read\n");   
+   printf("\tret\n");
+
    fclose(stdout);
 
    system("nasm -f elf64 out.s -o out.o");

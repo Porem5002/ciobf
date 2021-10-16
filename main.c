@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 
     char* src =  get_file_contents(argv[1]);
     
-    compile(src);    
+    compile_to_linux_x86_64(src);    
 
     return 0;
 }
