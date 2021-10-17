@@ -1,10 +1,12 @@
 #ifndef CIOBF_HEADER
 #define CIOBF_HEADER
 
-void interpret(char* src);
+#include "options.h"
 
-void compile_to_linux_x86_64(char* src);
+void interpret(char* src, options_t* options);
 
-void compile_to_linux_x86(char* src);
+void compile_to_linux_x86_64(char* src, options_t* options);
+
+void compile_to_linux_x86(char* src, options_t* options);
 
 #endif
