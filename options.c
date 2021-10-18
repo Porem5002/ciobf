@@ -9,8 +9,9 @@ options_t load_options(int argc, char** argv)
 {
     options_t options;
     options.interpret = false;
+    options.is_target_platform_32_bits = IS_CURRENT_PLATFORM_32_BITS;
     options.cell_count = 100;
-    options.target_platform = DEFAULT_PLATFORM;
+    options.buffer_size = 200;
     options.input_file_name = NULL; 
     options.output_file_name = "out";   
     options.output_file_type = OUTPUT_EXECUTABLE;
@@ -44,38 +45,20 @@ options_t load_options(int argc, char** argv)
         if(strcmp(argv[i], "-c") == 0)
         {
             char* p;
-            options.cell_count = (int)strtoull(argv[++i], &p, 10);
+            options.cell_count = (optint_t)strtoull(argv[++i], &p, 10);
             continue; 
         }
 
-        if(strcmp(argv[i], "-p") == 0)
+        if(strcmp(argv[i], "-b") == 0)
         {
-            i++;
+            char* p;
+            options.buffer_size = (optint_t)strtoull(argv[++i], &p, 10);
+            continue; 
+        }
 
-            if(strcmp(argv[i], "linux64") == 0)
-            {
-                options.target_platform = PLATFORM_LINUX_64B;   
-                continue;
-            }
-            
-            if(strcmp(argv[i], "linux32") == 0)
-            {
-                options.target_platform = PLATFORM_LINUX_32B;   
-                continue;
-            }
-
-            if(strcmp(argv[i], "win64") == 0)
-            {
-                options.target_platform = PLATFORM_WINDOWS_64B;   
-                continue;
-            }
-            
-            if(strcmp(argv[i], "win32") == 0)
-            {
-                options.target_platform = PLATFORM_WINDOWS_32B;   
-                continue;
-            }
-        
+        if(strcmp(argv[i], "-bit32") == 0)
+        {
+            options.is_target_platform_32_bits = true;
             continue;
         }
         

@@ -5,8 +5,8 @@
 
 void interpret(char* src, options_t* options);
 
-void compile_to_linux_x86_64(char* src, options_t* options);
+void compile_to_x86_64_bits(char* src, options_t* options);
 
-void compile_to_linux_x86(char* src, options_t* options);
+void compile_to_x86_32_bits(char* src, options_t* options);
 
 #endif

@@ -11,25 +11,20 @@ int main(int argc, char** argv)
     
     options_t options = load_options(argc, argv);
 
-    char* src =  get_file_contents(options.input_file_name);
-   
+    char* src =  get_file_contents(options.input_file_name); 
+
     if(options.interpret)
     {
         interpret(src, &options);
-        return 0;
     } 
-    
-    switch(options.target_platform)
+    else if(!options.is_target_platform_32_bits)
     {
-        case PLATFORM_LINUX_64B:
-            compile_to_linux_x86_64(src, &options);
-            break;
-        case PLATFORM_LINUX_32B:
-            compile_to_linux_x86(src, &options);
-            break;
-        default:
-            break;
-    }    
-
+        compile_to_x86_64_bits(src, &options);
+    }
+    else
+    {
+        compile_to_x86_32_bits(src, &options);
+    }
+        
     return 0;
 }

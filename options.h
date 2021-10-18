@@ -4,28 +4,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum
-{
-    PLATFORM_LINUX_64B,
-    PLATFORM_LINUX_32B,
-    PLATFORM_WINDOWS_64B,
-    PLATFORM_WINDOWS_32B
-};
-
-#define DEFAULT_PLATFORM PLATFORM_LINUX_64B
-/*
-#if defined(__linux__) && INTPTR_MAX == UINT64_MAX
-    #define DEFAULT_PLATFORM PLATFORM_LINUX_64B
-#elif defined(__linux__) && INTPTR_MAX == UINT32_MAX
-    #define DEFAULT_PLATFORM PLATFORM_LINUX_32B
-#elif defined(WIN64)
-    #define DEFAULT_PLATFORM PLATFORM_WINDOWS_64B
+#if defined(WIN64) || defined(WIN32)
+#if defined(WIN64)
+#define IS_CURRENT_PLATFORM_32_BITS false 
 #elif defined(WIN32)
-    #define DEFAULT_PLATFORM PLATFORM_WINDOWS_32B
-#else
-    #define DEFAULT_PLATFORM
+#define IS_CURRENT_PLATFORM_32_BITS true
 #endif
-*/
+#elif defined(__GNUC__)
+#if defined(__x86_64__)
+#define IS_CURRENT_PLATFORM_32_BITS false
+#else
+#define IS_CURRENT_PLATFORM_32_BITS true
+#endif
+#endif
 
 enum
 {
@@ -34,14 +25,17 @@ enum
     OUTPUT_ASM_FILE
 };
 
+typedef uint32_t optint_t;
+
 typedef struct OPTIONS_STRUCT
 {
     bool interpret;
-    int target_platform;
-    int cell_count;
+    bool is_target_platform_32_bits;
+    optint_t cell_count;
+    optint_t buffer_size;
     char* input_file_name;
     char* output_file_name;  
-    int output_file_type; 
+    optint_t output_file_type; 
 } options_t;
 
 options_t load_options(int argc, char** argv);
