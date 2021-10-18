@@ -704,10 +704,10 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    fclose(stdout);
 
    if(options->output_file_type == OUTPUT_ASM_FILE) return;
-   system("nasm -f win32 out.s -o out.o");
+   system("nasm -f win32 out.s -o out.obj");
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
-   system("ld -m elf_i386 out.o -o out");
+   system("GoLink /console /entry _start out.obj kernel32");
 }
 
 #endif
