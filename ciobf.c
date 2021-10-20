@@ -545,7 +545,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    printf("_start:\n");
    printf("\tmov edx, array\n");
    printf("\tmov ebx, buffer\n");
-   printf("\txor ecx, 0\n");
+   printf("\txor ecx, ecx\n");
    printf("\tpush -11\n");
    printf("\tcall GetStdHandle\n");
    printf("\tmov esi, eax\n");
@@ -707,7 +707,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    system("nasm -f win32 out.s -o out.obj");
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
-   system("GoLink /console /entry _start out.obj kernel32");
+   system("GoLink /console /entry _start out.obj kernel32.dll");
 }
 
 #endif
