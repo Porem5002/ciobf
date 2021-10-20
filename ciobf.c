@@ -654,7 +654,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
        printf("\tinc ecx\n");
        printf("\tcmp ebx, buffer + %u\n", options->buffer_size);
        printf("\tjne endprint\n");
-       printf("\tpush 0");
+       printf("\tpush 0\n");
        printf("\tpush bytes_written_holder\n");
        printf("\tpush %u\n", options->buffer_size);
        printf("\tpush buffer\n");
@@ -688,7 +688,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 
       printf("read:\n");
       printf("\tpush 0\n");
-      printf("\tpush bytes_written_holder");
+      printf("\tpush bytes_written_holder\n");
       printf("\tpush 1\n");
       printf("\tpush edx\n");
       printf("\tpush ebi\n");
