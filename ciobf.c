@@ -144,7 +144,7 @@ void compile_to_x86_64_bits(char* src, options_t* options)
 /* ------------------------------------- */
 
    printf("section .bss\n");
-   printf("array resq %u\n", options->cell_count);
+   printf("array resb %u\n", options->cell_count);
    printf("buffer resb %u\n", options->buffer_size);
    printf("section .text\n");
    printf("global _start\n");
@@ -336,7 +336,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 /* ------------------------------------- */
 
    printf("section .bss\n");
-   printf("array resd %u\n", options->cell_count);
+   printf("array resb %u\n", options->cell_count);
    printf("buffer resb %u\n", options->buffer_size);
    printf("section .text\n");
    printf("global _start\n");
@@ -533,7 +533,8 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 /* ------------------------------------- */
 
    printf("section .bss\n");
-   printf("array resd %u\n", options->cell_count);
+   printf("stdin resd 1\n");
+   printf("array resb %u\n", options->cell_count);
    printf("buffer resb %u\n", options->buffer_size);
    printf("bytes_written_holder resd 1\n");
    printf("section .text\n");
@@ -543,15 +544,15 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    printf("extern ReadConsoleA\n");
    printf("extern GetStdHandle\n");
    printf("_start:\n");
-   printf("\tmov edx, array\n");
-   printf("\tmov ebx, buffer\n");
-   printf("\txor ecx, ecx\n");
+   printf("\tmov ebx, array\n");
+   printf("\tmov ebp, buffer\n");
+   printf("\txor esi, esi\n");
    printf("\tpush -11\n");
    printf("\tcall GetStdHandle\n");
-   printf("\tmov esi, eax\n");
+   printf("\tmov ebi, eax\n");
    printf("\tpush -10\n");
    printf("\tcall GetStdHandle\n");
-   printf("\tmov edi, eax\n");
+   printf("\tmov dword [stdin], eax\n");
 
 /* ------------------------------------- */
 /*        Body of assembly file          */
@@ -575,9 +576,9 @@ void compile_to_x86_32_bits(char* src, options_t* options)
             current_char_ptr--;
 
             if(increment > 0) 
-               printf("\tadd byte [edx], %u\n", increment);
+               printf("\tadd byte [ebx], %u\n", increment);
             else if(increment < 0)
-               printf("\tsub byte [edx], %u\n", -increment);
+               printf("\tsub byte [ebx], %u\n", -increment);
             break;
          case '>':
          case '<':
@@ -593,13 +594,13 @@ void compile_to_x86_32_bits(char* src, options_t* options)
             current_char_ptr--;
             
             if(increment > 0)
-               printf("\tadd edx, %u\n", increment);
+               printf("\tadd ebx, %u\n", increment);
             else if (increment < 0)
-               printf("\tsub edx, %u\n", -increment);
+               printf("\tsub ebx, %u\n", -increment);
             break;
          case '[':
             printf("loop%u:\n", current_max_loop_id);
-            printf("\tcmp byte [edx], 0\n");
+            printf("\tcmp byte [ebx], 0\n");
             printf("\tjz endloop%u\n", current_max_loop_id);
 
             *loop_id_stack_top = current_max_loop_id;
@@ -630,13 +631,13 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 
    if(requires_print)
    {
-      printf("\tcmp ecx, 0\n");
+      printf("\tcmp esi, 0\n");
       printf("\tje exit_flush\n");
       printf("\tpush 0\n");
       printf("\tpush bytes_written_holder\n");
-      printf("\tpush ecx\n");
-      printf("\tpush buffer\n");
       printf("\tpush esi\n");
+      printf("\tpush buffer\n");
+      printf("\tpush edi\n");
       printf("\tcall WriteConsoleA\n");
       printf("exit_flush:\n");
    }
@@ -648,20 +649,20 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    {
        /* Print Function */ 
        printf("print:\n");
-       printf("\tmov al, byte [edx]\n");
-       printf("\tmov byte [ebx], al\n");
-       printf("\tinc ebx\n");
-       printf("\tinc ecx\n");
-       printf("\tcmp ebx, buffer + %u\n", options->buffer_size);
+       printf("\tmov al, byte [ebx]\n");
+       printf("\tmov byte [ebp], al\n");
+       printf("\tinc ebp\n");
+       printf("\tinc esi\n");
+       printf("\tcmp ebp, buffer + %u\n", options->buffer_size);
        printf("\tjne endprint\n");
        printf("\tpush 0\n");
        printf("\tpush bytes_written_holder\n");
        printf("\tpush %u\n", options->buffer_size);
        printf("\tpush buffer\n");
-       printf("\tpush esi\n");
+       printf("\tpush edi\n");
        printf("\tcall WriteConsoleA\n");  
-       printf("\tmov ebx, buffer\n");
-       printf("\txor ecx, ecx\n"); 
+       printf("\tmov ebp, buffer\n");
+       printf("\txor esi, esi\n"); 
        printf("endprint:\n");
        printf("\tret\n");
    }
@@ -674,26 +675,26 @@ void compile_to_x86_32_bits(char* src, options_t* options)
       
       if(requires_print)      
       {
-         printf("\tcmp ecx, 0\n");
+         printf("\tcmp esi, 0\n");
          printf("\tje read\n");
          printf("\tpush 0\n");
          printf("\tpush bytes_written_holder\n");
-         printf("\tpush ecx\n");
-         printf("\tpush buffer\n");
          printf("\tpush esi\n");
+         printf("\tpush buffer\n");
+         printf("\tpush edi\n");
          printf("\tcall WriteConsoleA\n");
-         printf("\tmov ebx, buffer\n");
-         printf("\txor ecx, ecx\n");
+         printf("\tmov ebp, buffer\n");
+         printf("\txor esi, esi\n");
       }
 
       printf("read:\n");
       printf("\tpush 0\n");
       printf("\tpush bytes_written_holder\n");
       printf("\tpush 1\n");
-      printf("\tpush edx\n");
-      printf("\tpush ebi\n");
+      printf("\tpush ebx\n");
+      printf("\tpush dword [stdin]\n");
       printf("\tcall ReadConsoleA\n");
-      printf("\tmov al, byte [edx]\n");
+      printf("\tmov al, byte [ebx]\n");
       printf("\tcmp al, 10\n");
       printf("\tje read\n");
       printf("\tcmp al, 13\n");
