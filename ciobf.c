@@ -151,7 +151,7 @@ void compile_to_x86_64_bits(char* src, options_t* options)
    printf("_start:\n");
    printf("\tmov rbx, buffer\n");
    printf("\tmov rsi, array\n");
-   printf("\tmov rdx, 1\n");
+   printf("\txor rcx, rcx\n");
 
 /* ------------------------------------- */
 /*        Body of assembly file          */
@@ -549,7 +549,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    printf("\txor esi, esi\n");
    printf("\tpush -11\n");
    printf("\tcall GetStdHandle\n");
-   printf("\tmov ebi, eax\n");
+   printf("\tmov edi, eax\n");
    printf("\tpush -10\n");
    printf("\tcall GetStdHandle\n");
    printf("\tmov dword [stdin], eax\n");

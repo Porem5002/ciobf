@@ -10,7 +10,7 @@ options_t load_options(int argc, char** argv)
     options_t options;
     options.interpret = false;
     options.is_target_platform_32_bits = IS_CURRENT_PLATFORM_32_BITS;
-    options.cell_count = 100;
+    options.cell_count = 500;
     options.buffer_size = 200;
     options.input_file_name = NULL; 
     options.output_file_name = "out";   
