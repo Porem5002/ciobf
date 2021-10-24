@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 #include "options.h"
-#include "ciobf.h"
+#include "compile.h"
+#include "interpret.h"
 #include "fileio.h"
 
 int main(int argc, char** argv)

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "options.h"
+#include "compile.h"
 
 static void simplify_src(char* destination, char* src)
 {
@@ -34,89 +34,6 @@ static void simplify_src(char* destination, char* src)
    destination[j] = '\0';
 }
 
-void interpret(char* src, options_t* options)
-{
-    char* current_char_ptr = src;
-
-    signed char cells[options->cell_count];
-    
-    memset(cells, 0, options->cell_count);    
-
-    signed char* cell_ptr = cells;
-    
-    int loop_counter;
-
-    while(*current_char_ptr != '\0')
-    {
-        switch(*current_char_ptr)
-        {
-            case '+':
-               (*cell_ptr)++;
-		        break;
-	        case '-':
-                (*cell_ptr)--;
-		        break;
-            case '>':
-                cell_ptr++;
-                break;
-            case '<':
-                cell_ptr--;
-                break;
-            case '[':
-                if (*cell_ptr != 0) break;
-                
-                loop_counter = 0; 
-        
-                while(true)
-                {
-                    if(*current_char_ptr == '[')
-                    {
-                         loop_counter++;
-                    }
-                    else if(*current_char_ptr == ']')
-                    {
-                        loop_counter--;
-                    }
-
-                    if(loop_counter == 0) break;
-                
-                    current_char_ptr++;
-                }
-                break;
-            case ']':
-                if(*cell_ptr == 0) break;
-                
-                loop_counter = 0; 
-        
-                while(true)
-                {
-                    if(*current_char_ptr == ']')
-                    {
-                         loop_counter++;
-                    }
-                    else if(*current_char_ptr == '[')
-                    {
-                        loop_counter--;
-                    }
-
-                    if(loop_counter == 0) break;
-
-                    current_char_ptr--;
-                }
-                break;
-            case '.':
-                putchar((char)(*cell_ptr));
-                break;
-            case ',':
-                *cell_ptr = (signed char)getchar();
-                break;
-            default: break;
-        }
-        
-        current_char_ptr++;
-    }
-}
-
 #ifdef __linux__
 
 void compile_to_x86_64_bits(char* src, options_t* options)
@@ -136,8 +53,11 @@ void compile_to_x86_64_bits(char* src, options_t* options)
 
    int increment;
    char last_syscall = 2;
- 
-   freopen("out.s", "w", stdout);
+
+
+   limited_string_t asm_file_name;
+   sprintf(asm_file_name, "%s.s", options->output_file_name);
+   freopen(asm_file_name, "w", stdout);
    
 /* ------------------------------------- */
 /*        Head of assembly file          */
@@ -305,10 +225,16 @@ void compile_to_x86_64_bits(char* src, options_t* options)
    fclose(stdout);
 
    if(options->output_file_type == OUTPUT_ASM_FILE) return;
-   system("nasm -f elf64 out.s -o out.o");
+
+   limited_string_t nasm_system_call_str;
+   sprintf(nasm_system_call_str, "nasm -f elf64 %s.s -o %s.o", options->output_file_name, options->output_file_name);
+   system(nasm_system_call_str);
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
-   system("ld out.o -o out");
+   
+   limited_string_t ld_system_call_str;
+   sprintf(ld_system_call_str, "ld %s.o -o %s", options->output_file_name, options->output_file_name);
+   system(ld_system_call_str);
 }
 
 void compile_to_x86_32_bits(char* src, options_t* options)
@@ -328,8 +254,10 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 
    int increment;
    char last_syscall = 2;
-   
-   freopen("out.s", "w", stdout);
+  
+   char asm_file_name [strlen(options->output_file_name) + 3];
+   sprintf(asm_file_name, "%s.s", options->output_file_name);
+   freopen(asm_file_name, "w", stdout);
    
 /* ------------------------------------- */
 /*        Head of assembly file          */
@@ -495,10 +423,16 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    fclose(stdout);
 
    if(options->output_file_type == OUTPUT_ASM_FILE) return;
-   system("nasm -f elf32 out.s -o out.o");
+
+   limited_string_t nasm_system_call_str;
+   sprintf(nasm_system_call_str, "nasm -f elf32 %s.s -o %s.o", options->output_file_name, options->output_file_name);
+   system(nasm_system_call_str);
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
-   system("ld -m elf_i386 out.o -o out");
+   
+   limited_string_t ld_system_call_str;
+   sprintf(ld_system_call_str, "ld -m elf_i386 %s.o -o %s", options->output_file_name, options->output_file_name);
+   system(ld_system_call_str);
 }
 
 #elif defined(WIN32)
@@ -526,7 +460,9 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    int increment;
    char last_syscall = 2;
    
-   freopen("out.s", "w", stdout);
+   char asm_file_name [strlen(options->output_file_name) + 3];
+   sprintf(asm_file_name, "%s.s", options->output_file_name);
+   freopen(asm_file_name, "w", stdout);
    
 /* ------------------------------------- */
 /*        Head of assembly file          */
@@ -705,10 +641,16 @@ void compile_to_x86_32_bits(char* src, options_t* options)
    fclose(stdout);
 
    if(options->output_file_type == OUTPUT_ASM_FILE) return;
-   system("nasm -f win32 out.s -o out.obj");
+
+   limited_string_t nasm_system_call_str;
+   sprintf(nasm_system_call_str, "nasm -f win32 %s.s -o %s.obj", options->output_file_name, options->output_file_name);
+   system(nasm_system_call_str);
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
-   system("GoLink /console /entry _start out.obj kernel32.dll");
+   
+   limited_string_t ld_system_call_str;
+   sprintf(golink_system_call_str, "GoLink /console /entry _start %s.obj kernel32.dll", options->output_file_name);
+   system(golink_system_call_str);
 }
 
 #endif

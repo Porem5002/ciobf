@@ -3,7 +3,7 @@
 
 #include "options.h"
 
-void interpret(char* src, options_t* options);
+typedef char limited_string_t [200];
 
 void compile_to_x86_64_bits(char* src, options_t* options);
 
