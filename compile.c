@@ -648,7 +648,7 @@ void compile_to_x86_32_bits(char* src, options_t* options)
 
    if(options->output_file_type == OUTPUT_OBJ_FILE) return; 
    
-   limited_string_t ld_system_call_str;
+   limited_string_t golink_system_call_str;
    sprintf(golink_system_call_str, "GoLink /console /entry _start %s.obj kernel32.dll", options->output_file_name);
    system(golink_system_call_str);
 }
