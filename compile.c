@@ -523,7 +523,7 @@ void compile_64_bits(char* src, options_t* options)
     char* current_char_ptr = simplified_src;
    
     unsigned int current_max_loop_id = 0;
-    unsigned int loop_id_stack [256];
+    unsigned int loop_id_stack [256] = {0};
     unsigned int* loop_id_stack_top = loop_id_stack;   
     
     bool requires_print = false;
@@ -598,7 +598,7 @@ void compile_32_bits(char* src, options_t* options)
    char* current_char_ptr = simplified_src;
    
    unsigned int current_max_loop_id = 0;
-   unsigned int loop_id_stack [256];
+   unsigned int loop_id_stack [256] = {0};
    unsigned int* loop_id_stack_top = loop_id_stack;   
     
    bool requires_print = false;
