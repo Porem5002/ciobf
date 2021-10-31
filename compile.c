@@ -499,7 +499,7 @@ void compile_32_bits_footer(options_t* options, bool requires_print, bool requir
 void assemble_32_bits(options_t* options)
 {
     limited_string_t nasm_system_call_str;
-    sprintf(nasm_system_call_str, "nasm -f win32 %s.s -o %s.o", options->output_file_name, options->output_file_name);
+    sprintf(nasm_system_call_str, "nasm -f win32 %s.s -o %s.obj", options->output_file_name, options->output_file_name);
     system(nasm_system_call_str);  
 }
 
