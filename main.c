@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "options.h"
-#include "compile.h"
-#include "interpret.h"
-#include "fileio.h"
+#include "include/options.h"
+#include "include/compile.h"
+#include "include/interpret.h"
+#include "include/fileio.h"
 
 int main(int argc, char** argv)
 {
@@ -20,11 +20,11 @@ int main(int argc, char** argv)
     } 
     else if(!options.is_target_platform_32_bits)
     {
-        compile_to_x86_64_bits(src, &options);
+        compile_64_bits(src, &options);
     }
     else
     {
-        compile_to_x86_32_bits(src, &options);
+        compile_32_bits(src, &options);
     }
         
     return 0;

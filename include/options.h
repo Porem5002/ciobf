@@ -5,15 +5,17 @@
 #include <stdbool.h>
 
 #if defined(WIN64) || defined(WIN32)
-#if defined(WIN64)
-#define IS_CURRENT_PLATFORM_32_BITS false 
-#elif defined(WIN32)
-#define IS_CURRENT_PLATFORM_32_BITS true
+#define WINDOWS_OS
+#elif defined(__linux__)
+#define LINUX_OS
 #endif
-#elif defined(__GNUC__)
+
+#if defined(__GNUC__)
 #if defined(__x86_64__)
+#define CPU_64_BITS
 #define IS_CURRENT_PLATFORM_32_BITS false
 #else
+#define CPU_32_BITS
 #define IS_CURRENT_PLATFORM_32_BITS true
 #endif
 #endif

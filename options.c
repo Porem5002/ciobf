@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "options.h"
+#include "include/options.h"
 
 options_t load_options(int argc, char** argv)
 {

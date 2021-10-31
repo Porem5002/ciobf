@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "fileio.h"
+
+#include "include/fileio.h"
 
 char* get_file_contents(char* path)
 {

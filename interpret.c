@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "interpret.h"
+#include "include/interpret.h"
 
 void interpret(char* src, options_t* options)
 {
