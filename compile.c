@@ -346,6 +346,175 @@ void link_32_bits(options_t* options)
 
 #elif defined(WINDOWS_OS)
 
+#if defined(CPU_64_BITS)
+
+void compile_64_bits_head(options_t* options)
+{
+    printf("section .bss\n");
+    printf("stdin resq 1\n");
+    printf("array resb %u\n", options->cell_count);
+    printf("buffer resb %u\n", options->buffer_size);
+    printf("bytes_written_holder resq 1\n");
+    printf("section .text\n");
+    printf("global _start\n");
+    printf("extern ExitProcess\n");
+    printf("extern WriteConsoleA\n");
+    printf("extern ReadConsoleA\n");
+    printf("extern GetStdHandle\n");
+    printf("_start:\n");
+    printf("\tsub rsp, 40\n");
+    printf("\tmov rbx, array\n");
+    printf("\tmov rbp, buffer\n");
+    printf("\txor rsi, rsi\n");
+    printf("\tmov rcx, -11\n");
+    printf("\tcall GetStdHandle\n");
+    printf("\tmov rdi, rax\n");
+    printf("\tmov rcx, -10\n");
+    printf("\tcall GetStdHandle\n");
+    printf("\tmov qword [stdin], rax\n");
+}
+
+void compile_64_bits_cell_increment(char** current_char_ptr)
+{
+    int increment = 0;
+            
+    do 
+    {  
+        increment += **current_char_ptr == '+' ? 1 : -1;
+        (*current_char_ptr)++;
+    }
+    while(**current_char_ptr == '+' || **current_char_ptr == '-');
+            
+    (*current_char_ptr)--;
+            
+    if(increment > 0)
+        printf("\tadd byte [rbx], %u\n", increment);
+    else if (increment < 0)
+        printf("\tsub byte [rbx], %u\n", -increment);
+}
+
+void compile_64_bits_pointer_increment(char** current_char_ptr)
+{
+    int increment = 0;
+            
+    do 
+    {  
+        increment += **current_char_ptr == '>' ? 1 : -1;
+        (*current_char_ptr)++;
+    }
+    while(**current_char_ptr == '>' || **current_char_ptr == '<');
+            
+    (*current_char_ptr)--;
+            
+    if(increment > 0)
+        printf("\tadd rbx, %u\n", increment);
+    else if (increment < 0)
+        printf("\tsub rbx, %u\n", -increment);
+}
+
+void compile_64_bits_loop_start(unsigned int** loop_id_stack_top, unsigned int* current_max_loop_id)
+{
+    printf("loop%u:\n", *current_max_loop_id);
+    printf("\tcmp byte [rbx], 0\n");
+    printf("\tjz endloop%u\n", *current_max_loop_id);
+
+    **loop_id_stack_top = *current_max_loop_id;
+    (*loop_id_stack_top)++;
+    (*current_max_loop_id)++;
+}
+
+void compile_64_bits_footer(options_t* options, bool requires_print, bool requires_read)
+{
+    if(requires_print)
+    {
+        printf("\tcmp rsi, 0\n");
+        printf("\tje exit_flush\n");
+        printf("\tmov rcx, rdi\n");
+        printf("\tmov rdx, buffer\n");
+        printf("\tmov r8, rsi\n");
+        printf("\tmov r9, bytes_written_holder\n");
+        printf("\tmov qword [rsp + 32], 0\n");
+        printf("\tcall WriteConsoleA\n");
+        printf("exit_flush:\n");
+    }
+
+    /* Exit Syscall */
+    printf("\tmov rcx, 0\n");
+    printf("\tcall ExitProcess\n");
+
+    if(requires_print)
+    {
+        /* Print Function */ 
+        printf("print:\n");
+        printf("\tmov al, byte [rbx]\n");
+        printf("\tmov byte [rbp], al\n");
+        printf("\tinc rbp\n");
+        printf("\tinc rsi\n");
+        printf("\tcmp rbp, buffer + %u\n", options->buffer_size);
+        printf("\tjne endprint\n");
+        printf("\tmov rcx, rdi\n");
+        printf("\tmov rdx, buffer\n");
+        printf("\tmov r8, %u\n", options->buffer_size);
+        printf("\tmov r9, bytes_written_holder\n");
+        printf("\tmov qword [rsp + 32], 0\n");
+        printf("\tcall WriteConsoleA\n");  
+        printf("\tmov rbp, buffer\n");
+        printf("\txor rsi, rsi\n"); 
+        printf("endprint:\n");
+        printf("\tret\n");
+    }
+
+    if(requires_read)
+    {
+        /* Read Function */
+        printf("read_with_flush:\n");
+      
+        if(requires_print)      
+        {
+            printf("\tcmp rsi, 0\n");
+            printf("\tje read\n");
+            printf("\tmov rcx, rdi\n");
+            printf("\tmov rdx, buffer\n");
+            printf("\tmov r8, rsi\n");
+            printf("\tmov r9, bytes_written_holder\n");
+            printf("\tmov qword [rsp + 32], 0\n");
+            printf("\tcall WriteConsoleA\n");
+            printf("\tmov rbp, buffer\n");
+            printf("\txor rsi, rsi\n");
+        }
+
+        printf("read:\n");
+        printf("\tmov rcx, qword [stdin]\n");
+        printf("\tmov rdx, rbx\n");
+        printf("\tmov r8, 1\n");
+        printf("\tmov r9, bytes_written_holder\n");
+        printf("\tmov qword [rsp + 32], 0\n"); 
+        printf("\tcall ReadConsoleA\n");
+        printf("\tmov al, byte [rbx]\n");
+        printf("\tcmp al, 10\n");
+        printf("\tje read\n");
+        printf("\tcmp al, 13\n");
+        printf("\tje read\n");   
+        printf("\tret\n");
+    }
+}
+
+void assemble_64_bits(options_t* options)
+{
+    limited_string_t nasm_system_call_str;
+    sprintf(nasm_system_call_str, "nasm -f win64 %s.s -o %s.obj", options->output_file_name, options->output_file_name);
+    system(nasm_system_call_str);  
+}
+
+void link_64_bits(options_t* options)
+{
+    limited_string_t golink_system_call_str;
+    sprintf(golink_system_call_str, "GoLink /console /entry _start %s.obj kernel32.dll", options->output_file_name);
+    system(golink_system_call_str);
+}
+
+#endif
+
 void compile_32_bits_head(options_t* options)
 {
     printf("section .bss\n");
