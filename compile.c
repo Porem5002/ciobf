@@ -681,7 +681,7 @@ void link_32_bits(options_t* options)
 
 #endif
 
-#if defined(CPU_64_BITS) && !defined(WINDOWS_OS)
+#if defined(CPU_64_BITS)
 
 void compile_64_bits(char* src, options_t* options)
 {
