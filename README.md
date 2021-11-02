@@ -1,6 +1,8 @@
 # ciobf
-A [Brainf#ck](https://en.wikipedia.org/wiki/Brainfuck) compiler and interpretor fully written in c, that generates x86 assembly for the NASM asssembler.
-Currently the compiler supports Linux 64-bits/32-bits and Windows 32-bits.
+A [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) compiler and interpretor fully written in c, that generates x86 assembly for the NASM asssembler.
+Currently the compiler supports Linux 64-bits/32-bits, Windows 32-bits, Windows 64-bits.
+
+If you think the repository is interesting, consider giving it a star.
 
 # Installation
 To install you just need to run the make file:
