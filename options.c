@@ -4,12 +4,13 @@
 #include <stdbool.h>
 
 #include "include/options.h"
+#include "include/platform.h"
 
 options_t load_options(int argc, char** argv)
 {
     options_t options;
     options.interpret = false;
-    options.is_target_platform_32_bits = IS_CURRENT_PLATFORM_32_BITS;
+    options.is_target_platform_32_bits = BOOL_CPU_32_BITS;
     options.cell_count = 500;
     options.buffer_size = 200;
     options.input_file_name = NULL; 

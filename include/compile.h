@@ -2,6 +2,7 @@
 #define CIOBF_HEADER
 
 #include "options.h"
+#include "platform.h"
 
 typedef char limited_string_t [200];
 
