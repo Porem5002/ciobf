@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "include/help.h"
 #include "include/options.h"
 #include "include/compile.h"
 #include "include/interpret.h"
@@ -8,12 +9,22 @@
 
 int main(int argc, char** argv)
 {
-    if(argc < 2) exit(1);
-    
     options_t options = load_options(argc, argv);
 
-    char* src =  get_file_contents(options.input_file_name); 
+    if(options.print_help_requested)
+    {
+        print_help();
+        return 0;
+    }
 
+    if(options.input_file_name == NULL)
+    {
+        printf("Error: No input file was provided!\n");
+        return 1;
+    }
+
+    char* src =  get_file_contents(options.input_file_name); 
+    
     if(options.interpret)
     {
         interpret(src, &options);

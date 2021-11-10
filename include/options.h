@@ -16,6 +16,7 @@ typedef uint32_t optint_t;
 typedef struct OPTIONS_STRUCT
 {
     bool interpret;
+    bool print_help_requested;
     bool is_target_platform_32_bits;
     optint_t cell_count;
     optint_t buffer_size;

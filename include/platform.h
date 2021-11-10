@@ -1,12 +1,6 @@
 #ifndef PLATFORM_HEADER
 #define PLATFORM_HEADER
 
-#define WINDOWS_OS
-#define CPU_64_BITS
-#define BOOL_CPU_32_BITS (0)
-
-#if 0
-
 #if defined(_WIN64) || defined(_WIN32)
 #define WINDOWS_OS
 #elif defined(__linux__)
@@ -19,8 +13,6 @@
 #elif defined(__i368__) || defined(_X86_) || defined(_M_IX86)
 #define CPU_32_BITS 
 #define BOOL_CPU_32_BITS (1)
-#endif
-
 #endif
 
 #endif

@@ -10,6 +10,7 @@ options_t load_options(int argc, char** argv)
 {
     options_t options;
     options.interpret = false;
+    options.print_help_requested = false;
     options.is_target_platform_32_bits = BOOL_CPU_32_BITS;
     options.cell_count = 500;
     options.buffer_size = 200;
@@ -23,6 +24,12 @@ options_t load_options(int argc, char** argv)
         {
             options.input_file_name = argv[i];
             continue;
+        }
+
+        if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
+        {
+            options.print_help_requested = true;
+            break;
         }
 
         if(strcmp(argv[i], "-asm") == 0)
